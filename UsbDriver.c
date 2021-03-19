@@ -59,7 +59,15 @@
 /*
 ** This function will be called when USB device is inserted.
 */
-static int etx_usb_probe(struct usb_interface *interface,
+
+/* The probe() method is invoked by khubd after device */
+/* enumeration. The first argument, interface, contains information */
+/* gleaned during the enumeration process. id is the entry in the */
+/* driver's usb_device_id table that matches the values read from */
+/* the Usb stick. tele_probe() is based on skel_probe() */
+/* defined in drivers/usb/usb-skeleton.c*/
+
+static int usb_probe(struct usb_interface *interface,
                         const struct usb_device_id *id)
 {
     unsigned int i;
@@ -83,53 +91,53 @@ static int etx_usb_probe(struct usb_interface *interface,
 /*
 ** This function will be called when USB device is removed.
 */
-static void etx_usb_disconnect(struct usb_interface *interface)
+static void usb_disconnect(struct usb_interface *interface)
 {
     dev_info(&interface->dev, "USB Driver Disconnected\n");
 }
 
 //usb_device_id provides a list of different types of USB devices that the driver supports
-const struct usb_device_id etx_usb_table[] = {
+const struct usb_device_id usb_table[] = {
     { USB_DEVICE( USB_VENDOR_ID, USB_PRODUCT_ID ) },    //Put your USB device's Vendor and Product ID
     { } /* Terminating entry */
 };
 
 //This enable the linux hotplug system to load the driver automatically when the device is plugged in
-MODULE_DEVICE_TABLE(usb, etx_usb_table);
+MODULE_DEVICE_TABLE(usb, usb_table);
 
 //The structure needs to do is register with the linux subsystem
-static struct usb_driver etx_usb_driver = {
+static struct usb_driver usb_driver = {
     .name       = "kishore USB Driver",
-    .probe      = etx_usb_probe,
-    .disconnect = etx_usb_disconnect,
-    .id_table   = etx_usb_table,
+    .probe      = usb_probe,
+    .disconnect = usb_disconnect,
+    .id_table   = usb_table,
 };
 
 /* #if ( IS_NEW_METHOD_USED == 0 ) */
 #if 1
 //This will replaces module_init and module_exit.
-module_usb_driver(etx_usb_driver);
+module_usb_driver(usb_driver);
 
 #else
-static int __init etx_usb_init(void)
+static int __init usb_init(void)
 {
     //register the USB device
     printk("kp usb init is called \n");
-    return usb_register(&etx_usb_driver);
+    return usb_register(&usb_driver);
 }
 
-static void __exit etx_usb_exit(void)
+static void __exit usb_exit(void)
 {
     //deregister the USB device
     printk("exit usb \n");
-    usb_deregister(&etx_usb_driver);
+    usb_deregister(&usb_driver);
 }
 
-module_init(etx_usb_init);
-module_exit(etx_usb_exit);
+module_init(usb_init);
+module_exit(usb_exit);
 #endif
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("EmbeTronicX <embetronicx@gmail.com>");
+MODULE_AUTHOR("kishorePonnoju<kishore.kumar667@gmail.com>");
 MODULE_DESCRIPTION("A simple device driver - USB Driver");
 MODULE_VERSION("1.30");
